@@ -10,9 +10,6 @@ To compile and run on Ubuntu 14.04<br />
 ~/build/comp5421$ make
 ```
 <br />
-```
-~/build/comp5421$ ./bin/cvision geometry ../fountain_dense/urd/0000.png ../fountain_dense/urd/0001.png
-```
 <br />
 	
 
@@ -29,6 +26,10 @@ How to execute the program:<br />
 ~/comp5421/build/bin$ ./cvision matching ../../fountain_dense/urd/0000.png ../../fountain_dense/urd/0001.png
 ```
 <br />
+-> For features detection, matching, fundamental matrix computation and epipolar lines drawing:<br />
+```
+~/build/comp5421$ ./bin/cvision geometry ../fountain_dense/urd/0000.png ../fountain_dense/urd/0001.png
+```
 -> For features triangulation:<br />
 ```
 ~/comp5421/build/bin$ ./cvision triangulation ../../fountain_dense/urd/0000.png ../../fountain_dense/urd/0001.png
