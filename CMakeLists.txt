@@ -14,6 +14,7 @@ include_directories(include)
 add_executable(cvision
 	src/main.cpp
 	src/features.cpp
+	src/utils.cpp
 )
 
 set_target_properties(cvision PROPERTIES COMPILE_FLAGS "-std=c++11 -w -g -O3")

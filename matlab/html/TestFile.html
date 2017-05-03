@@ -1,0 +1,935 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>TestFile</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-02"><meta name="DC.source" content="TestFile.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Test the full reconstruction</a></li><li><a href="#3">Make the two results coincide: Three view geometry, or SFM</a></li></ul></div><pre class="codeinput"><span class="comment">% TESTFILE - Tests the reconstruction algorithms on a simple model with</span>
+<span class="comment">%            three cameras.</span>
+<span class="comment">%</span>
+<span class="comment">% Syntax:  TestFile</span>
+<span class="comment">%</span>
+<span class="comment">% Inputs:</span>
+<span class="comment">%    None:  TestFile.m automaticly computes all necessary values from a</span>
+<span class="comment">%           simple model.</span>
+<span class="comment">%</span>
+<span class="comment">% Outputs:</span>
+<span class="comment">%    Vizualizations:</span>
+<span class="comment">%                       - 3D original points of simple model</span>
+<span class="comment">%                       - 2D points of projections on three cameras</span>
+<span class="comment">%                       - 3D reconstructed points</span>
+<span class="comment">%</span>
+<span class="comment">% Other m-files required: - all from ./test folder</span>
+<span class="comment">%                         - cv_triangulate</span>
+<span class="comment">%                         - compute_fund_mat</span>
+<span class="comment">% Subfunctions: none</span>
+<span class="comment">% MAT-files required: none</span>
+
+<span class="comment">% Author:   Thomas Lew</span>
+<span class="comment">% email:    thomas.lew@epfl.ch</span>
+<span class="comment">% Website:  https://github.com/thomasjlew/</span>
+<span class="comment">% April 2017; Last revision: 2-May-2017</span>
+
+<span class="comment">%------------- BEGIN CODE --------------</span>
+
+close <span class="string">all</span>;
+clear <span class="string">all</span>;
+
+addpath(<span class="string">'./test'</span>)
+
+<span class="comment">% Intrinsics</span>
+K  = [-2500,    0, 1500;
+          0,-2500, 1000;
+          0,    0,    1];
+<span class="comment">% First Camera</span>
+R1 = eye(3);
+C1 = zeros(3,1);
+Rt1 = [R1', -R1'*C1];
+P1 = K * Rt1;
+<span class="comment">% Second camera</span>
+R2 = my_rotationVectorToMatrix( [0;1;0], pi/4 );
+C2 = [-10000*sqrt(2)/2;0;10000*(1-sqrt(2)/2)]; <span class="comment">% see http://ksimek.github.io/2012/08/22/extrinsic/</span>
+Rt2 = [R2', -R2'*C2];  <span class="comment">% RT2 describes how the world is transformed</span>
+P2 = K * Rt2;          <span class="comment">% relative to the camera.</span>
+<span class="comment">% 3rd camera</span>
+R3 = my_rotationVectorToMatrix( [0;1;0], pi/4 );
+C3 = [-10000;0;10000];
+Rt3 = [R3', -R3'*C3];
+P3 = K * Rt3;
+
+<span class="comment">% Points</span>
+<span class="comment">% 1st Camera ( also Global frame )</span>
+homog_3d_pts = init3dpts;
+visualize_3d_pts(homog_3d_pts, <span class="string">'matlab 3D pts'</span>)
+
+<span class="comment">% Project the points onto the two camera image planes</span>
+[proj_pts1, proj_pts2, proj_pts3] = project_pts(P1, P2, P3, homog_3d_pts);
+
+<span class="comment">% View the points as an image for each camera</span>
+plot_2d_pts(proj_pts1,proj_pts2, proj_pts3);
+
+<span class="comment">% Test the triangulation function (WORKS)</span>
+<span class="comment">% [ X ] = cv_triangulate(proj_pts1, proj_pts2, P1, P2);</span>
+<span class="comment">% visualize_3d_pts(X, 'reconstructed pts');</span>
+</pre><img vspace="5" hspace="5" src="TestFile_01.png" alt=""> <img vspace="5" hspace="5" src="TestFile_02.png" alt=""> <h2 id="2">Test the full reconstruction</h2><p>Recover 2d points as seen by three cameras</p><pre class="codeinput">v1 = proj_pts1(:,1:2);
+v2 = proj_pts2(:,1:2);
+v3 = proj_pts3(:,1:2);
+
+<span class="comment">%   Intrinsics</span>
+<span class="comment">% K = [-2759.48,     0, 1520.69;</span>
+<span class="comment">% 	    0,    -2764.16, 1006.81;</span>
+<span class="comment">% 	    0, 	         0, 	  1]</span>
+
+<span class="comment">%   Fundamental matrix</span>
+<span class="comment">% save_fundMat !!!!!!!!!! this function doesnt work with some formats</span>
+[ F12, err_F12] = compute_fund_mat( v1, v2 );
+[ F23, err_F23] = compute_fund_mat( v2, v3 );
+
+<span class="comment">%	Computation of the Essential matrix</span>
+E12 = K' * F12 * K;
+E23 = K' * F23 * K;
+
+<span class="comment">% Computation of camera matrix from essential matrix and intrinsics</span>
+pt1 = v1(1,:); pt2 = v2(1,:);   <span class="comment">% Best match to check [R|t] solution</span>
+[R12, t12] = get_Rt_from_essential_mat(E12, K, pt1, pt2);
+pt2 = v2(1,:); pt3 = v3(1,:);   <span class="comment">% Best match to check [R|t] solution</span>
+[R23, t23] = get_Rt_from_essential_mat(E23, K, pt2, pt3);
+
+<span class="comment">% Form the camera matrices from intrinsics and extrinsics</span>
+P1 = K*[eye(3), zeros(3,1)];
+P2 = K*[R12, t12];
+P3 = K*[R23, t23];
+
+<span class="comment">%   Triangulate</span>
+X12 = cv_triangulate(v1, v2, P1, P2);
+X23 = cv_triangulate(v2, v3, P1, P3);   <span class="comment">% P2 == eye|0 since it's now origin</span>
+
+<span class="comment">%   Show the results</span>
+visualize_3d_pts(X12, <span class="string">'Completely reconstructed pts (from scratch)'</span>);
+visualize_3d_pts(X23, <span class="string">'image pair 23'</span>);
+</pre><pre class="codeoutput">
+U =
+
+   -0.0000    0.3827    0.9239
+   -1.0000    0.0000   -0.0000
+   -0.0000   -0.9239    0.3827
+
+
+S =
+
+    5.4440         0         0
+         0    5.4440         0
+         0         0    0.0000
+
+
+V =
+
+   -0.3827    0.0000   -0.9239
+         0    1.0000    0.0000
+   -0.9239         0    0.3827
+
+
+P1 =
+
+       -2500           0        1500           0
+           0       -2500        1000           0
+           0           0           1           0
+
+
+P2_1 =
+
+   1.0e+03 *
+
+    2.5000   -0.0000    1.5000   -1.7357
+    0.0000   -2.5000    1.0000    0.3827
+    0.0000    0.0000    0.0010    0.0004
+
+
+x1 =
+
+   1.0e+14 *
+
+         0   -0.0000   -1.5391    0.0000
+
+
+x2 =
+
+   1.0e+14 *
+
+         0    0.0000    1.5391    0.0000
+
+
+x3 =
+
+         0   -0.0000   -1.3066    1.0000
+
+
+x4 =
+
+         0    0.0000    1.3066    1.0000
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+  -1.5391e+14
+
+
+ans =
+
+     1
+
+
+depth_ptx1p1 =
+
+  -1.5391e+14
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+  -1.5391e+14
+
+
+ans =
+
+     1
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+   1.5391e+14
+
+
+ans =
+
+     1
+
+
+x =
+
+  -5.7742e+06
+
+
+y =
+
+   5.3044e-10
+
+
+z =
+
+   2.3918e+06
+
+
+t =
+
+   6.2500e+06
+
+
+c =
+
+   -0.9239
+    0.0000
+    0.3827
+
+
+M =
+
+   1.0e+03 *
+
+    2.5000   -0.0000    1.5000
+    0.0000   -2.5000    1.0000
+    0.0000    0.0000    0.0010
+
+
+w =
+
+   1.5391e+14
+
+
+ans =
+
+     1
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+   -1.3066
+
+
+ans =
+
+     1
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+    1.3066
+
+
+ans =
+
+     1
+
+
+x =
+
+  -5.7742e+06
+
+
+y =
+
+   7.0673e-10
+
+
+z =
+
+   2.3918e+06
+
+
+t =
+
+     6250000
+
+
+c =
+
+   -0.9239
+    0.0000
+    0.3827
+
+
+M =
+
+   1.0e+03 *
+
+    0.7071   -0.0000   -2.8284
+   -0.7071    2.5000   -0.7071
+   -0.0007   -0.0000   -0.0007
+
+
+w =
+
+   -1.3066
+
+
+ans =
+
+     1
+
+Warning: 4 
+
+U =
+
+    0.0000    0.3827   -0.9239
+   -1.0000    0.0000   -0.0000
+    0.0000    0.9239    0.3827
+
+
+S =
+
+   1.0e+14 *
+
+    2.1622         0         0
+         0    2.1622         0
+         0         0    0.0000
+
+
+V =
+
+   -0.3827    0.0000    0.9239
+   -0.0000   -1.0000    0.0000
+   -0.9239    0.0000   -0.3827
+
+
+P1 =
+
+       -2500           0        1500           0
+           0       -2500        1000           0
+           0           0           1           0
+
+
+P2_1 =
+
+   1.0e+03 *
+
+    2.5000    0.0000   -1.5000    2.8837
+   -0.0000    2.5000   -1.0000    0.3827
+   -0.0000   -0.0000   -0.0010    0.0004
+
+
+x1 =
+
+         0   -0.0000    1.3066    1.0000
+
+
+x2 =
+
+         0    0.0000   -1.3066    1.0000
+
+
+x3 =
+
+   1.0e+13 *
+
+         0    0.0000    7.1829    0.0000
+
+
+x4 =
+
+   1.0e+13 *
+
+         0   -0.0000   -7.1829    0.0000
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+    1.3066
+
+
+ans =
+
+     1
+
+
+depth_ptx1p1 =
+
+    1.3066
+
+
+x =
+
+     0
+
+
+y =
+
+     0
+
+
+z =
+
+     0
+
+
+t =
+
+    -6250000
+
+
+c =
+
+     0
+     0
+     0
+
+
+M =
+
+       -2500           0        1500
+           0       -2500        1000
+           0           0           1
+
+
+w =
+
+    1.3066
+
+
+ans =
+
+     1
+
+
+x =
+
+  -5.7742e+06
+
+
+y =
+
+  -6.5407e-09
+
+
+z =
+
+   2.3918e+06
+
+
+t =
+
+   6.2500e+06
+
+
+c =
+
+   -0.9239
+   -0.0000
+    0.3827
+
+
+M =
+
+   1.0e+03 *
+
+    2.5000    0.0000   -1.5000
+   -0.0000    2.5000   -1.0000
+   -0.0000   -0.0000   -0.0010
+
+
+w =
+
+   -0.9239
+
+
+ans =
+
+    1.0000
+
+Warning: 1 
+</pre><img vspace="5" hspace="5" src="TestFile_03.png" alt=""> <img vspace="5" hspace="5" src="TestFile_04.png" alt=""> <h2 id="3">Make the two results coincide: Three view geometry, or SFM</h2><pre class="codeinput">Adj_01_inv = [Rt2; 0 0 0 1];
+Adj_12_inv = [Rt3; 0 0 0 1];
+Adj_02_inv = Adj_12_inv * Adj_01_inv;
+X_original1 = (Adj_01_inv * X23')';
+X_original2 = (Adj_02_inv * X23')';
+
+<span class="comment">% An obtain rotation of 180&deg; or pi[rad] is not physically correct</span>
+<span class="keyword">if</span>(R12(1,1)&lt;0)
+    R12 = -R12;
+<span class="keyword">end</span>
+
+<span class="comment">% Recover 3D points and translation scales</span>
+alpha = 1;   <span class="comment">%scalar for p (see pdf of final report)</span>
+beta  = 1;   <span class="comment">%scalar for t</span>
+p = X23(6,1:3)' <span class="comment">%p reconstructed %select one with values on y and x different than zero</span>
+A = R12 * homog_3d_pts(6,1:3)';
+beta  = ((A(1)*p(2)/(p(1)*t12(2)))-A(2)/t12(2) ) / (1- t12(1)*p(2)/(p(1)*t12(2)))
+alpha = A(1)/p(1) + beta*t12(1)/p(1)
+
+<span class="comment">% Recover points in first frame</span>
+Adj_01_inv = [R12', -R12' * beta* t12; 0 0 0 1];
+X23(:,1:3) = alpha * X23(:,1:3);
+X_2_from_12 = (Adj_01_inv * X23')';
+visualize_3d_pts(X_2_from_12, <span class="string">'X2 from 23 with Resize'</span>);
+
+<span class="comment">%------------- END OF CODE --------------</span>
+</pre><pre class="codeoutput">
+p =
+
+    0.2310
+   -0.3266
+    1.0756
+
+
+beta =
+
+  -7.6540e+03
+
+
+alpha =
+
+   7.6535e+03
+
+</pre><img vspace="5" hspace="5" src="TestFile_05.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% TESTFILE - Tests the reconstruction algorithms on a simple model with
+%            three cameras.
+% 
+% Syntax:  TestFile
+%
+% Inputs:
+%    None:  TestFile.m automaticly computes all necessary values from a
+%           simple model.
+%
+% Outputs:
+%    Vizualizations:
+%                       - 3D original points of simple model
+%                       - 2D points of projections on three cameras
+%                       - 3D reconstructed points
+%
+% Other m-files required: - all from ./test folder
+%                         - cv_triangulate
+%                         - compute_fund_mat
+% Subfunctions: none
+% MAT-files required: none
+
+% Author:   Thomas Lew
+% email:    thomas.lew@epfl.ch
+% Website:  https://github.com/thomasjlew/
+% April 2017; Last revision: 2-May-2017
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- BEGIN CODE REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+close all;
+clear all;
+
+addpath('./test')
+
+% Intrinsics
+K  = [-2500,    0, 1500;
+          0,-2500, 1000;
+          0,    0,    1];
+% First Camera
+R1 = eye(3);
+C1 = zeros(3,1);
+Rt1 = [R1', -R1'*C1];
+P1 = K * Rt1;
+% Second camera
+R2 = my_rotationVectorToMatrix( [0;1;0], pi/4 );
+C2 = [-10000*sqrt(2)/2;0;10000*(1-sqrt(2)/2)]; % see http://ksimek.github.io/2012/08/22/extrinsic/
+Rt2 = [R2', -R2'*C2];  % RT2 describes how the world is transformed
+P2 = K * Rt2;          % relative to the camera.
+% 3rd camera
+R3 = my_rotationVectorToMatrix( [0;1;0], pi/4 );
+C3 = [-10000;0;10000];
+Rt3 = [R3', -R3'*C3];
+P3 = K * Rt3;
+
+% Points
+% 1st Camera ( also Global frame )
+homog_3d_pts = init3dpts;
+visualize_3d_pts(homog_3d_pts, 'matlab 3D pts')
+
+% Project the points onto the two camera image planes
+[proj_pts1, proj_pts2, proj_pts3] = project_pts(P1, P2, P3, homog_3d_pts);
+
+% View the points as an image for each camera
+plot_2d_pts(proj_pts1,proj_pts2, proj_pts3);
+
+% Test the triangulation function (WORKS)
+% [ X ] = cv_triangulate(proj_pts1, proj_pts2, P1, P2);
+% visualize_3d_pts(X, 'reconstructed pts');
+
+
+%%  Test the full reconstruction
+% Recover 2d points as seen by three cameras
+v1 = proj_pts1(:,1:2);
+v2 = proj_pts2(:,1:2);
+v3 = proj_pts3(:,1:2);
+
+%   Intrinsics
+% K = [-2759.48,     0, 1520.69;
+% 	    0,    -2764.16, 1006.81;
+% 	    0, 	         0, 	  1]
+  
+%   Fundamental matrix
+% save_fundMat !!!!!!!!!! this function doesnt work with some formats
+[ F12, err_F12] = compute_fund_mat( v1, v2 );
+[ F23, err_F23] = compute_fund_mat( v2, v3 );
+
+%	Computation of the Essential matrix
+E12 = K' * F12 * K;
+E23 = K' * F23 * K;
+
+% Computation of camera matrix from essential matrix and intrinsics
+pt1 = v1(1,:); pt2 = v2(1,:);   % Best match to check [R|t] solution
+[R12, t12] = get_Rt_from_essential_mat(E12, K, pt1, pt2);
+pt2 = v2(1,:); pt3 = v3(1,:);   % Best match to check [R|t] solution
+[R23, t23] = get_Rt_from_essential_mat(E23, K, pt2, pt3);
+
+% Form the camera matrices from intrinsics and extrinsics
+P1 = K*[eye(3), zeros(3,1)];
+P2 = K*[R12, t12];
+P3 = K*[R23, t23];
+
+%   Triangulate
+X12 = cv_triangulate(v1, v2, P1, P2);
+X23 = cv_triangulate(v2, v3, P1, P3);   % P2 == eye|0 since it's now origin
+
+%   Show the results
+visualize_3d_pts(X12, 'Completely reconstructed pts (from scratch)');
+visualize_3d_pts(X23, 'image pair 23');
+
+%%   Make the two results coincide: Three view geometry, or SFM
+Adj_01_inv = [Rt2; 0 0 0 1];
+Adj_12_inv = [Rt3; 0 0 0 1];
+Adj_02_inv = Adj_12_inv * Adj_01_inv;
+X_original1 = (Adj_01_inv * X23')';
+X_original2 = (Adj_02_inv * X23')';
+
+% An obtain rotation of 180° or pi[rad] is not physically correct
+if(R12(1,1)<0)
+    R12 = -R12;
+end
+
+% Recover 3D points and translation scales
+alpha = 1;   %scalar for p (see pdf of final report)
+beta  = 1;   %scalar for t
+p = X23(6,1:3)' %p reconstructed %select one with values on y and x different than zero
+A = R12 * homog_3d_pts(6,1:3)';
+beta  = ((A(1)*p(2)/(p(1)*t12(2)))-A(2)/t12(2) ) / (1- t12(1)*p(2)/(p(1)*t12(2)))
+alpha = A(1)/p(1) + beta*t12(1)/p(1)
+
+% Recover points in first frame
+Adj_01_inv = [R12', -R12' * beta* t12; 0 0 0 1];
+X23(:,1:3) = alpha * X23(:,1:3);
+X_2_from_12 = (Adj_01_inv * X23')';
+visualize_3d_pts(X_2_from_12, 'X2 from 23 with Resize');
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- END OF CODE REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+##### SOURCE END #####
+--></body></html>
