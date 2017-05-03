@@ -11,7 +11,6 @@ To compile and run on Ubuntu 14.04<br />
 ```
 <br />
 <br />
-	
 
 
 How to execute the program:<br />
