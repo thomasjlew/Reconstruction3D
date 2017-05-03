@@ -507,7 +507,7 @@ Mat features_fundMat(FEATURES feat1, FEATURES feat2, vector<DMatch> matches)
 	vec_matches = get_most_precise_matches(feat1, feat2, matches);
 
     //	Use only the 25 best matches for the fundamental matrix computation
-    const int num_match_F = min(NB_MAX_FEAT_FOR_FUND_MAT, number_matches);		//--------BIG PARAMETER, how to choose? better than 25
+    const int num_match_F = min(NB_MAX_FEAT_FOR_FUND_MAT, number_matches);
 	vector<Point2f> F_points1(num_match_F);
 	vector<Point2f> F_points2(num_match_F);
 	for(int i = 0; i < num_match_F; i++)
@@ -702,7 +702,7 @@ EPIPOLAR_LINES features_epipolar_lines(FEATURES feat1, FEATURES feat2,
 /* -------------------------------------------------------------------------- */
 
 
-/*	----------------------------------------------------------------------------
+/*	--------------- NOT USED IN THE CODE, FOR REFERENCE ONLY -------------------
 	Additional function for triangulation. Original version at, and adapted from
 		http://stackoverflow.com/questions/24354889/problems-in-3d-
 		reconstruction-by-triangulation-opencv 
